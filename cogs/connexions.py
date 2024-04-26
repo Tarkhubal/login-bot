@@ -17,7 +17,11 @@ async def disconnect_check(bot: commands.Bot, ctx: Union[commands.Context, disco
             color=discord.Color.red()
         )
     else:
-        past_q = bot.database.get.nb_connexions(author.id)
+        try:
+            past_q = bot.database.get.nb_connexions(author.id)
+        except TypeError:
+            bot.database.update.add_user(author.id, 0)
+            past_q = 0
         bot.database.update.user(author.id, {"connexions": past_q + 1})
         bot.connexions[author.id] = False
         em = discord.Embed(

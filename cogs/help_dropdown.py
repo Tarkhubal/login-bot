@@ -54,7 +54,7 @@ class Dropdown(discord.ui.Select):
                 pass
             
             embed.add_field(
-                name=f"`{command.usage}`",
+                name=f"`{self.bot.command_prefix}{command.usage}`",
                 value=value,
                 inline=False
             )
@@ -169,11 +169,10 @@ class Help(discord.ext.commands.Cog):
                 "emoji": "👑",
                 "value": "fonda",
                 "commands": [
-                    "fonda",
-                    "fonda add",
-                    "fonda remove",
-                    "fonda reset",
-                    "fonda delete",
+                    "add",
+                    "remove",
+                    "reset",
+                    "delete",
                 ]
             },
         ]

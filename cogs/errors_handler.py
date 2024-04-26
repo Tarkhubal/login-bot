@@ -101,9 +101,13 @@ class ErrorHandler(commands.Cog):
                 color=discord.Color.red()
             )
         elif isinstance(error, commands.MemberNotFound):
+            desc = "Le membre n'a pas été trouvé"
+            if error.argument != "":
+                desc += f"\n`{error.argument}`"
+            
             embed = discord.Embed(
                 title="Erreur",
-                description="Le membre n'a pas été trouvé",
+                description=desc,
                 color=discord.Color.red()
             )
         elif isinstance(error, commands.ChannelNotFound):

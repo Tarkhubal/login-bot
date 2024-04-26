@@ -18,22 +18,7 @@ class Manage(commands.Cog):
         self.db: Database = bot.database
     
     @is_fonda()
-    @commands.hybrid_group(name="fonda", description="Commandes pour les fondateurs", invoke_without_command=True, with_app_command=True, usage="fonda")
-    async def fonda(self, ctx: commands.Context):
-        desc = "Voici la liste des options disponibles pour les fondateurs :"
-        for command in self.fonda.commands:
-            desc += f"\n- `{command.name}` : {command.description}"
-        
-        desc += f"\n\nVous pouvez accéder aux commandes en tapant `/fonda <commande>` ou `{ctx.prefix}fonda <commande>`."
-        embed = discord.Embed(
-            title="Commandes administratives",
-            description=desc,
-            color=discord.Color.blurple()
-        )
-        await ctx.reply(embed=embed)
-    
-    @is_fonda()
-    @fonda.command(name="add", description="Ajouter une ou plusieurs connexion(s) à un membre", invoke_without_command=True, with_app_command=True, usage="fonda add [membre] [quantite]")
+    @commands.hybrid_command(name="add", description="Ajouter une ou plusieurs connexion(s) à un membre", with_app_command=True, usage="add [membre] [quantite]")
     @app_commands.describe(member="Membre à qui ajouter des connexions", quantite="Nombre de connexions à ajouter")
     async def add(self, ctx: commands.Context, member: Union[discord.Member, discord.User], quantite: int):
         dont_have_q = False
@@ -62,7 +47,7 @@ class Manage(commands.Cog):
         await ctx.reply(embed=embed)
     
     @is_fonda()
-    @fonda.command(name="remove", description="Retirer une ou plusieurs connexion(s) à un membre", invoke_without_command=True, with_app_command=True, usage="fonda remove [membre] [quantite]", aliases=["rm"])
+    @commands.hybrid_command(name="remove", description="Retirer une ou plusieurs connexion(s) à un membre", with_app_command=True, usage="remove [membre] [quantite]", aliases=["rm"])
     @app_commands.describe(member="Membre à qui retirer des connexions", quantite="Nombre de connexions à retirer")
     async def remove(self, ctx: commands.Context, member: Union[discord.Member, discord.User], quantite: int):
         dont_have_q = False
@@ -94,7 +79,7 @@ class Manage(commands.Cog):
         await ctx.reply(embed=embed)
     
     @is_fonda()
-    @fonda.command(name="reset", description="Réinitialiser le nombre de connexions d'un membre", invoke_without_command=True, with_app_command=True, usage="fonda reset [membre]", aliases=["rst"])
+    @commands.hybrid_command(name="reset", description="Réinitialiser le nombre de connexions d'un membre", with_app_command=True, usage="reset [membre]", aliases=["rst"])
     @app_commands.describe(member="Membre à qui réinitialiser les connexions")
     async def reset(self, ctx: commands.Context, member: Union[discord.Member, discord.User]):
         try:
@@ -112,7 +97,7 @@ class Manage(commands.Cog):
         await ctx.reply(embed=embed)
     
     @is_fonda()
-    @fonda.command(name="delete", description="Supprimer un staff", invoke_without_command=True, with_app_command=True, usage="fonda delete [membre]", aliases=["del"])
+    @commands.hybrid_command(name="delete", description="Supprimer un staff", with_app_command=True, usage="delete [membre]", aliases=["del"])
     @app_commands.describe(member="Membre à supprimer")
     async def delete(self, ctx: commands.Context, member: Union[discord.Member, discord.User]):
         self.db.delete.user(member.id)
@@ -124,7 +109,7 @@ class Manage(commands.Cog):
             pass
         desc = f"Le membre {member.mention} n'est maintenant plus un membre du staff et ses connexions ont été supprimées."
         if cant_delete_role:
-            desc += f"\n\nInfo : Je n'ai pas pu lui retirer son rôle de staff parce que mon rôle n'est pas assez haut."
+            desc += f"\n\nInfo : je n'ai pas pu lui retirer son rôle de staff parce que mon rôle n'est pas assez haut."
         embed = discord.Embed(
             title="Suppression d'un membre",
             description=desc,
