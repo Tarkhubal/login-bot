@@ -9,44 +9,45 @@ from tools.checks import is_staff, is_a3
 
 
 async def disconnect_check(bot: commands.Bot, ctx: Union[commands.Context, discord.Interaction]):
-    if ctx.author.id not in ctx.bot.connexions or bot.connexions[ctx.author.id] is False:
+    author = ctx.author if isinstance(ctx, commands.Context) else ctx.user
+    if author.id not in bot.connexions or bot.connexions[author.id] is False:
         em = discord.Embed(
             title="Aucune connexion en cours",
-            description=f"Vous n'avez pas de connexion en cours.\n\nUtilisez `/connect`, `{ctx.bot.command_prefix}connect` ou le bouton ci-dessous pour en démarrer une.",
+            description=f"Vous n'avez pas de connexion en cours.\n\nUtilisez `/connect`, `{bot.command_prefix}connect` ou le bouton ci-dessous pour en démarrer une.",
             color=discord.Color.red()
         )
     else:
+        past_q = bot.database.get.nb_connexions(author.id)
+        bot.database.update.user(author.id, {"connexions": past_q + 1})
+        bot.connexions[author.id] = False
         em = discord.Embed(
             title="Connexion terminée",
-            description=f"Votre connexion a été terminée avec succès.\n\nUtilisez `/connect`, `{ctx.bot.command_prefix}connect` ou le bouton ci-dessous pour en démarrer une nouvelle.",
+            description=f"Votre connexion a été terminée avec succès.\n\nUtilisez `/connect`, `{bot.command_prefix}connect` ou le bouton ci-dessous pour en démarrer une nouvelle.",
             color=discord.Color.green()
         )
-    
-    bot.connexion[ctx.author.id] = False
-    view = StartConn(ctx.bot, ctx.author)
+
+    view = StartConn(bot, author)
     if isinstance(ctx, commands.Context):
         return await ctx.reply(embed=em, view=view)
     return await ctx.response.edit_message(embed=em, view=view)
 
 async def connect_check(bot: commands.Bot, ctx: Union[commands.Context, discord.Interaction]):
-    if ctx.author.id in bot.connexions and bot.connexions[ctx.author.id] is True:
+    author = ctx.author if isinstance(ctx, commands.Context) else ctx.user
+    if author.id in bot.connexions and bot.connexions[author.id] is True:
         em = discord.Embed(
             title="Connexion en cours",
             description=f"Vous avez déjà une connexion en cours.\n\nUtilisez `/disconnect`, `{bot.command_prefix}disconnect` ou le bouton ci-dessous pour la terminer.",
             color=discord.Color.red()
         )
-        view = CloseConn(bot, ctx.author)
-        if isinstance(ctx, commands.Context):
-            return await ctx.reply(embed=em, view=view)
-        return await ctx.response.edit_message(embed=em, view=view)
+    else:
+        bot.connexions[author.id] = True
+        em = discord.Embed(
+            title="Connexion démarrée",
+            description=f"Vous avez démarré une connexion.\n\nUtilisez `/disconnect`, `{bot.command_prefix}disconnect` ou le bouton ci-dessous pour la terminer.",
+            color=discord.Color.green()
+        )
     
-    bot.connexions[ctx.author.id] = True
-    em = discord.Embed(
-        title="Connexion démarrée",
-        description=f"Vous avez démarré une connexion.\n\nUtilisez `/disconnect`, `{bot.command_prefix}disconnect` ou le bouton ci-dessous pour la terminer.",
-        color=discord.Color.green()
-    )
-    view = CloseConn(bot, ctx.author)
+    view = CloseConn(bot, author)
     if isinstance(ctx, commands.Context):
         return await ctx.reply(embed=em, view=view)
     return await ctx.response.edit_message(embed=em, view=view)
@@ -132,7 +133,7 @@ class Connexions(commands.Cog):
         self.db: Database = bot.database
     
     @is_staff()
-    @commands.hybrid_command(name="me", description="Voir son nombre de connexions", with_app_command=True)
+    @commands.hybrid_command(name="me", description="Voir son nombre de connexions", with_app_command=True, usage="me")
     async def me(self, ctx: commands.Context):
         try:
             q = self.db.get.nb_connexions(ctx.author.id)
@@ -152,7 +153,7 @@ class Connexions(commands.Cog):
         await ctx.reply(content=f"{ctx.author.mention}, regarde en MP !")
     
     @is_a3()
-    @commands.hybrid_command(name="check", description="Voir le nombre de connexions d'un membre", with_app_command=True)
+    @commands.hybrid_command(name="check", description="Voir le nombre de connexions d'un membre", with_app_command=True, usage="check [membre]", aliases=["ch"])
     async def check(self, ctx: commands.Context, member: Union[discord.Member, discord.User]):
         try:
             q = self.db.get.nb_connexions(member.id)
@@ -168,26 +169,36 @@ class Connexions(commands.Cog):
         await ctx.reply(embed=embed)
     
     @is_staff()
-    @commands.hybrid_command(name="connect", description="Démarrer une connexion", aliases=["c", "conn"], with_app_command=True)
-    async def check(self, ctx: commands.Context):
+    @commands.hybrid_command(name="connect", description="Démarrer une connexion", aliases=["c", "conn"], with_app_command=True, usage="connect")
+    async def connect(self, ctx: commands.Context):
         await connect_check(self.bot, ctx)
     
     @is_staff()
-    @commands.hybrid_command(name="disconnect", description="Terminer une connexion", aliases=["dc", "deco"], with_app_command=True)
-    async def check(self, ctx: commands.Context):
+    @commands.hybrid_command(name="disconnect", description="Terminer une connexion", aliases=["dc", "deco", "d"], with_app_command=True, usage="disconnect")
+    async def disconnect(self, ctx: commands.Context):
         await disconnect_check(self.bot, ctx)
     
-    @is_staff()
-    @commands.hybrid_command(name="leaderboard", description="Voir le classement des connexions", with_app_command=True, aliases=["lb"])
+    @is_a3()
+    @commands.hybrid_command(name="view", description="Voir le classement des connexions", with_app_command=True, aliases=["lb", "leaderboard"], usage="view")
     async def leaderboard(self, ctx: commands.Context):
         q = self.db.get.leaderboard()
-        desc = "\n".join([f"{i+1}. <@{j[0]}> - {j[1]} connexion{tl.pl(j[1])}" for i, j in enumerate(q)])
+
+        chunk_in = 10
+        chunked = tl.chunk_list(q, chunk_in)
+        descs = []
+        for i, chunk in enumerate(chunked):
+            desc = ""
+            for j, user in enumerate(chunk):
+                desc += f"`{i * chunk_in + j + 1}.` {self.bot.get_user(user[0]).mention} - {user[1]} connexion{tl.pl(user[1])}\n"
+            descs.append(desc)
         embed = discord.Embed(
             title="Classement des connexions",
-            description=desc,
+            description=descs[0],
             color=discord.Color.blurple()
         )
-        await ctx.reply(embed=embed)
+        descs = [discord.Embed(title="Classement des connexions", description=desc, color=discord.Color.blurple()) for desc in descs]
+        nav_view = tl.navigation_view(ctx.author, descs, embeded=True, bot=self.bot, complex=True)
+        await ctx.reply(embed=embed, view=nav_view)
 
     
 

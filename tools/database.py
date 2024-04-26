@@ -97,7 +97,10 @@ class DBGet:
         return self.cursor.fetchone()[0]
     
     def leaderboard(self, limit: int = 10):
-        self.cursor.execute(f"SELECT * FROM users ORDER BY connexions DESC LIMIT {limit}")
+        if limit == -1:
+            self.cursor.execute(f"SELECT * FROM users ORDER BY connexions DESC")
+        else:
+            self.cursor.execute(f"SELECT * FROM users ORDER BY connexions DESC LIMIT {limit}")
         return self.cursor.fetchall()
 
 

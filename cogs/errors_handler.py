@@ -17,6 +17,12 @@ class ErrorHandler(commands.Cog):
                 description="Vous n'avez pas la permission d'utiliser cette commande",
                 color=discord.Color.red()
             )
+        elif isinstance(error, discord.Forbidden):
+            embed = discord.Embed(
+                title="Erreur",
+                description="Le bot n'a pas la permission d'effectuer cette action.\n\nSi le bot devait supprimer un rôle quand vous avez effectué cette commande et que vous voyez cette erreur c'est sûrement n'est pas assez haut dans la hiérarchie des rôles, essayez de mettre le bot le plus haut possible et de recommencer.",
+                color=discord.Color.red()
+            )
         elif isinstance(error, commands.MissingRequiredArgument):
             command = self.bot.get_command(ctx.command.name)
             usage = command.usage
@@ -147,7 +153,7 @@ class ErrorHandler(commands.Cog):
             print(error)
             embed = discord.Embed(
                 title="Erreur",
-                description=f"Une erreur est survenue, cela vient sûrement du code. Contactez le développeur du bot ({self.bot.get_user(755738381455065120).mention}) ou un administrateur du serveur",
+                description=f"Une erreur est survenue, cela vient sûrement du code. Contactez le développeur du bot ({self.bot.get_user(1144911287134978128).mention}) ou un administrateur du serveur",
                 color=discord.Color.red()
             )
         
