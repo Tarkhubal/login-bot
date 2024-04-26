@@ -1,0 +1,29 @@
+[view1:view]
+> button1 {view2}
+ | label: Afficher quand même
+ | row: 0
+ * embed2
+
+---
+
+[embed2:embed]
+$ content
+ | title: help
+ | description: yes
+ | color: #ff0000
+
+---
+
+[view2:view]
+> button1 {}
+ | label: Supprimer le message
+ | row: 0
+ * embed3
+
+---
+
+[embed3:embed]
+$ content
+ | title: help
+ | description: yes
+ | color: #ff0000

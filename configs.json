@@ -1,0 +1,16 @@
+{
+    "version": "0.0.1",
+    "TOKEN": "",
+    "DEVTOKEN": null,
+    "dev_mode_is_activated": false,
+    "prefix": ".",
+    "database_name": "database.sqlite",
+    "database_url": "sqlite:///database.sqlite",
+    "owners": [
+        1144911287134978128,
+        871424490003902474
+    ],
+    "fonda_role": 1073313461527924796,
+    "a3_role": 1095008123166662726,
+    "staff_role": 1140586634086203512
+}

@@ -1,0 +1,18 @@
+{
+    "users": [
+        {
+            "name": "discord_id",
+            "type": "INTEGER",
+            "default": 0,
+            "nullable": false,
+            "primary_key": true,
+            "unique": true
+        },
+        {
+            "name": "connexions",
+            "type": "INTEGER",
+            "default": 0,
+            "nullable": false
+        }
+    ]
+}
