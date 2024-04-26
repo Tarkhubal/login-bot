@@ -4,9 +4,10 @@ from discord import app_commands
 from typing import Union, Optional
 
 from tools import tools as tl
-from tools.configs import Configs
 from tools.database import Database
 from tools.checks import is_fonda
+
+
 
 
 
@@ -23,7 +24,7 @@ class Manage(commands.Cog):
         for command in self.fonda.commands:
             desc += f"\n- `{command.name}` : {command.description}"
         
-        desc += "\n\nVous pouvez accéder aux commandes directement en cliquant sur les boutons ci-dessous ou en tapant `/fonda <commande>` ou `!fonda <commande>`."
+        desc += f"\n\nVous pouvez accéder aux commandes en tapant `/fonda <commande>` ou `{ctx.prefix}fonda <commande>`."
         embed = discord.Embed(
             title="Commandes administratives",
             description=desc,
@@ -33,6 +34,7 @@ class Manage(commands.Cog):
     
     @is_fonda()
     @fonda.command(name="add", description="Ajouter une connexion à un membre", invoke_without_command=True, with_app_command=True)
+    @app_commands.describe(member="Membre à qui ajouter des connexions", quantite="Nombre de connexions à ajouter")
     async def add(self, ctx: commands.Context, member: Union[discord.Member, discord.User], quantite: int):
         dont_have_q = False
         try:
@@ -61,6 +63,7 @@ class Manage(commands.Cog):
     
     @is_fonda()
     @fonda.command(name="remove", description="Retirer une connexion à un membre", invoke_without_command=True, with_app_command=True)
+    @app_commands.describe(member="Membre à qui retirer des connexions", quantite="Nombre de connexions à retirer")
     async def remove(self, ctx: commands.Context, member: Union[discord.Member, discord.User], quantite: int):
         dont_have_q = False
         try:
@@ -92,6 +95,7 @@ class Manage(commands.Cog):
     
     @is_fonda()
     @fonda.command(name="reset", description="Réinitialiser le nombre de connexions d'un membre", invoke_without_command=True, with_app_command=True)
+    @app_commands.describe(member="Membre à qui réinitialiser les connexions")
     async def reset(self, ctx: commands.Context, member: Union[discord.Member, discord.User]):
         try:
             past_q = self.db.get.nb_connexions(member.id)
@@ -109,9 +113,11 @@ class Manage(commands.Cog):
     
     @is_fonda()
     @fonda.command(name="delete", description="Supprimer un staff", invoke_without_command=True, with_app_command=True)
+    @app_commands.describe(member="Membre à supprimer")
     async def delete(self, ctx: commands.Context, member: Union[discord.Member, discord.User]):
         self.db.delete.user(member.id)
-        desc = f"Le membre {member.mention} a été supprimé de la base de données."
+        await member.remove_roles(discord.utils.get(ctx.guild.roles, id=self.bot.configs["staff_role"]))
+        desc = f"Le membre {member.mention} n'est maintenant plus un membre du staff et ses connexions ont été supprimées."
         embed = discord.Embed(
             title="Suppression d'un membre",
             description=desc,

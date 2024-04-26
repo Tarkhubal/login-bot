@@ -95,6 +95,10 @@ class DBGet:
     def nb_connexions(self, id: int):
         self.cursor.execute(f"SELECT connexions FROM users WHERE discord_id = {id}")
         return self.cursor.fetchone()[0]
+    
+    def leaderboard(self, limit: int = 10):
+        self.cursor.execute(f"SELECT * FROM users ORDER BY connexions DESC LIMIT {limit}")
+        return self.cursor.fetchall()
 
 
 class DBUpdate:

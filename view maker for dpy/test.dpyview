@@ -1,29 +1,13 @@
 [view1:view]
-> button1 {view2}
- | label: Afficher quand même
- | row: 0
- * embed2
-
----
-
-[embed2:embed]
-$ content
- | title: help
- | description: yes
- | color: #ff0000
-
----
-
-[view2:view]
 > button1 {}
- | label: Supprimer le message
+ | label: Terminer la connexion
  | row: 0
- * embed3
+ * embed1
 
 ---
 
-[embed3:embed]
+[embed1:embed]
 $ content
- | title: help
- | description: yes
- | color: #ff0000
+ | title: Connexion terminée
+ | description: Votre connexion a été terminée avec succès.
+ | color: #00ff00

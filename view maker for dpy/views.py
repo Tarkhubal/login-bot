@@ -38,29 +38,9 @@ class view1(discord.ui.View):
     async def interaction_check(self, interaction: discord.Interaction):
         return (interaction.user == self.author)
 
-    @discord.ui.button(label="Afficher quand même", row=0)
+    @discord.ui.button(label="Terminer la connexion", row=0)
     async def button1(self, interaction: discord.Interaction, button: discord.ui.Button):
-        embed = generate_embed({'type': 'embed', 'content': {'title': 'help', 'description': 'yes', 'color': '#ff0000', 'type': 'rich'}})
-        view = view2(self.bot, interaction.user)
-        content = None
-        await interaction.response.edit_message(content=content, embed=embed, view=view)
-        self.stop()
-    
-
-class view2(discord.ui.View):
-    def __init__(self, bot: commands.Bot, author: Union[discord.User, discord.Member]):
-        if isinstance(author, discord.Member):
-            author = author._user
-        self.bot = bot
-        self.author = author
-        super().__init__()
-
-    async def interaction_check(self, interaction: discord.Interaction):
-        return (interaction.user == self.author)
-
-    @discord.ui.button(label="Supprimer le message", row=0)
-    async def button1(self, interaction: discord.Interaction, button: discord.ui.Button):
-        embed = generate_embed({'type': 'embed', 'content': {'title': 'help', 'description': 'yes', 'color': '#ff0000', 'type': 'rich'}})
+        embed = generate_embed({'type': 'embed', 'content': {'title': 'Connexion terminée', 'description': 'Votre connexion a été terminée avec succès.', 'color': '#00ff00', 'type': 'rich'}})
         view = None
         content = None
         await interaction.response.edit_message(content=content, embed=embed, view=view)

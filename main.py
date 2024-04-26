@@ -27,6 +27,7 @@ if not os.path.exists(configs.get("database_name")):
 
 class Bot(commands.Bot):
     def __init__(self, configs: Configs):
+        self.connexions = {}
         self.configs = configs
         self.database = Database(self.configs.get("database_name"))
         self.columns = json.load(open("db_columns.json", "r", encoding="utf-8"))

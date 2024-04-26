@@ -5,44 +5,21 @@
             {
                 "type": "button",
                 "name": "button1",
-                "action": "view2",
-                "label": "Afficher quand même",
-                "row": "0",
-                "with": [
-                    "embed2"
-                ]
-            }
-        ]
-    },
-    "embed2": {
-        "type": "embed",
-        "content": {
-            "title": "help",
-            "description": "yes",
-            "color": "#ff0000"
-        }
-    },
-    "view2": {
-        "type": "view",
-        "components": [
-            {
-                "type": "button",
-                "name": "button1",
                 "action": "",
-                "label": "Supprimer le message",
+                "label": "Terminer la connexion",
                 "row": "0",
                 "with": [
-                    "embed3"
+                    "embed1"
                 ]
             }
         ]
     },
-    "embed3": {
+    "embed1": {
         "type": "embed",
         "content": {
-            "title": "help",
-            "description": "yes",
-            "color": "#ff0000"
+            "title": "Connexion terminée",
+            "description": "Votre connexion a été terminée avec succès.",
+            "color": "#00ff00"
         }
     }
 }
